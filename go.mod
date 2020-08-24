@@ -8,4 +8,5 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/justinas/alice v1.2.0 // indirect
 	github.com/subosito/gotenv v1.2.0
+	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 )
