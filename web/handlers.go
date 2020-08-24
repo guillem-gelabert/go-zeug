@@ -10,7 +10,7 @@ import (
 )
 
 func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
-	userDTO := &dto.UserDTO{}
+	userDTO := &dto.SignupDTO{}
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println("Error reading body:", err)
