@@ -7,12 +7,16 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/guillem-gelabert/go-zeug/pkg/models/mysql"
 	"github.com/subosito/gotenv"
 )
 
-type application struct{}
+type application struct {
+	users interface {
+		Insert(string, string, string) error
+	}
+}
 
 func init() {
 	gotenv.Load("../.env")
@@ -21,14 +25,16 @@ func init() {
 func main() {
 	port := os.Getenv("PORT")
 	dbs := os.Getenv("SQL_CONNECTION_STRING")
-	spew.Dump(port, dbs)
+
 	db, err := openDB(dbs)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	var app = &application{}
+	var app = &application{
+		users: &mysql.UserModel{DB: db},
+	}
 
 	srv := &http.Server{
 		Addr:    fmt.Sprint(":", port),
