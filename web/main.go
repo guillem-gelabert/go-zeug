@@ -13,7 +13,9 @@ import (
 )
 
 type application struct {
-	users interface {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+	users    interface {
 		Insert(string, string, string) error
 	}
 }
@@ -26,14 +28,20 @@ func main() {
 	port := os.Getenv("PORT")
 	dbs := os.Getenv("SQL_CONNECTION_STRING")
 
+	// log.New takes an int flag as a third argument, here set as byte union
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
 	db, err := openDB(dbs)
 	if err != nil {
-		log.Fatal(err)
+		errorLog.Fatal(err)
 	}
 	defer db.Close()
 
 	var app = &application{
-		users: &mysql.UserModel{DB: db},
+		errorLog: errorLog,
+		infoLog:  infoLog,
+		users:    &mysql.UserModel{DB: db},
 	}
 
 	srv := &http.Server{
@@ -41,7 +49,8 @@ func main() {
 		Handler: app.routes(),
 	}
 
-	log.Fatal(srv.ListenAndServe())
+	app.infoLog.Println("Starting server on port", port)
+	app.errorLog.Fatal(srv.ListenAndServe())
 }
 
 // TODO: decouple
