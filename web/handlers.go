@@ -2,43 +2,74 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"runtime/debug"
 
+	"github.com/dgrijalva/jwt-go"
+	"github.com/guillem-gelabert/go-zeug/pkg/models"
 	dto "github.com/guillem-gelabert/go-zeug/web/dtos"
 )
 
 func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
-	userDTO := &dto.SignupDTO{}
+	signupDTO := &dto.SignupDTO{}
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("Error reading body:", err)
+		app.errorLog.Println("Error reading body:", err)
 	}
 
-	json.Unmarshal(data, userDTO)
+	json.Unmarshal(data, signupDTO)
 
-	userDTO.ValidateDisplayName(dto.Required(), "display name is required")
-	userDTO.ValidateEmail(dto.Required(), "email is required")
-	userDTO.ValidateEmail(dto.IsEmail(), "email is invalid")
-	userDTO.ValidatePassword(dto.Required(), "password is required")
-	userDTO.ValidatePassword(dto.MaxLength(10), "password is too short")
+	// FIXME: Create DTO validators
+	signupDTO.ValidateDisplayName(dto.Required(), "display name is required")
+	signupDTO.ValidateEmail(dto.Required(), "email is required")
+	signupDTO.ValidateEmail(dto.IsEmail(), "email is invalid")
+	signupDTO.ValidatePassword(dto.Required(), "password is required")
+	signupDTO.ValidatePassword(dto.MaxLength(10), "password is too short")
 
 	err = app.users.Insert(
-		userDTO.DisplayName,
-		userDTO.Email,
-		userDTO.Password,
+		signupDTO.DisplayName,
+		signupDTO.Email,
+		signupDTO.Password,
 	)
 
 	if err != nil {
-		fmt.Println("Error creating user:", err)
+		app.errorLog.Println("Error creating user:", err)
 	}
 
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("loginUser invoked"))
+	loginDTO := &dto.LoginDTO{}
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		app.errorLog.Println("Error reading body:", err)
+	}
+
+	json.Unmarshal(data, loginDTO)
+
+	id, err := app.users.Authenticate(loginDTO.Email, loginDTO.Password)
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			app.clientError(w, "Bad Credentials", http.StatusBadRequest)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	token, err := generateToken(id)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(token))
 }
 
 func (app *application) getDueCards(w http.ResponseWriter, r *http.Request) {
@@ -47,4 +78,28 @@ func (app *application) getDueCards(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) updateCard(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("updateCard invoked"))
+}
+
+func generateToken(id int) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss": "zeug",
+		"uid": id,
+	})
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+func (app *application) serverError(w http.ResponseWriter, err error) {
+	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+	app.errorLog.Output(2, trace)
+
+	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+}
+
+func (app *application) clientError(w http.ResponseWriter, msg string, code int) {
+	http.Error(w, http.StatusText(code), code)
 }
