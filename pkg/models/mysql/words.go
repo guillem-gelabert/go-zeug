@@ -13,9 +13,9 @@ type WordModel struct {
 
 // Next returns the next n words from an offset m
 func (m *WordModel) Next(offset, next int) ([]*models.Word, error) {
-	var words []*models.Word
-	stmt := `SELECT * FROM words LIMIT ? OFFSET?;`
-	rows, err := m.DB.Query(stmt, offset, next)
+	words := []*models.Word{}
+	stmt := `SELECT * FROM words LIMIT ? OFFSET ?`
+	rows, err := m.DB.Query(stmt, next, offset)
 	if err != nil {
 		return nil, err
 	}

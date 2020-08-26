@@ -72,12 +72,27 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(token))
 }
 
-func (app *application) getDueCards(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("getDueCards invoked"))
-}
+func (app *application) getNextWords(w http.ResponseWriter, r *http.Request) {
+	u, err := app.users.Get(app.loggedIn)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		}
+		app.serverError(w, err)
+		return
+	}
 
-func (app *application) updateCard(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("updateCard invoked"))
+	ws, err := app.words.Next(u.LastSeenPriority, u.NewWordsPerSession)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
+	rs, err := json.Marshal(ws)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
+	w.Write(rs)
 }
 
 func generateToken(id int) (string, error) {

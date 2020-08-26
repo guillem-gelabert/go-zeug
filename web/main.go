@@ -23,7 +23,7 @@ type application struct {
 		Get(int) (*models.User, error)
 	}
 	words interface {
-		Next(int, int) []*models.Word
+		Next(int, int) ([]*models.Word, error)
 	}
 }
 
@@ -49,6 +49,7 @@ func main() {
 		errorLog: errorLog,
 		infoLog:  infoLog,
 		users:    &mysql.UserModel{DB: db},
+		words:    &mysql.WordModel{DB: db},
 	}
 
 	srv := &http.Server{
