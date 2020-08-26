@@ -4,10 +4,16 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 )
+
+type CustomClaims struct {
+	Id int `json:"uid"`
+	jwt.StandardClaims
+}
 
 func (app *application) VerifyToken(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -20,14 +26,21 @@ func (app *application) VerifyToken(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		authToken := bearer[1]
-		token, err := jwt.Parse(authToken, KeyFunc)
+		token, err := jwt.ParseWithClaims(authToken, &CustomClaims{}, KeyFunc)
 		if err != nil {
 			app.clientError(w, "Bad Credentials", http.StatusUnauthorized)
 			return
 		}
+		claims, ok := token.Claims.(*CustomClaims)
 
-		if !token.Valid {
+		if !ok || !token.Valid {
 			app.clientError(w, "Token Expired", http.StatusUnauthorized)
+			return
+		}
+
+		app.loggedIn, err = strconv.Atoi(strconv.Itoa(claims.Id))
+		if err != nil {
+			app.clientError(w, "Malformed Token", http.StatusUnauthorized)
 			return
 		}
 

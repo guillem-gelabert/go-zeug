@@ -14,11 +14,13 @@ import (
 )
 
 type application struct {
-	errorLog *log.Logger
 	infoLog  *log.Logger
+	errorLog *log.Logger
+	loggedIn int
 	users    interface {
-		Insert(string, string, string) error
 		Authenticate(string, string) (int, error)
+		Insert(string, string, string) error
+		Get(int) (*models.User, error)
 	}
 	words interface {
 		Next(int, int) []*models.Word

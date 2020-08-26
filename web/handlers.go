@@ -101,5 +101,5 @@ func (app *application) serverError(w http.ResponseWriter, err error) {
 }
 
 func (app *application) clientError(w http.ResponseWriter, msg string, code int) {
-	http.Error(w, http.StatusText(code), code)
+	http.Error(w, msg, code)
 }
