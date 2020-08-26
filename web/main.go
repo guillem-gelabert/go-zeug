@@ -8,6 +8,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/guillem-gelabert/go-zeug/pkg/models"
 	"github.com/guillem-gelabert/go-zeug/pkg/models/mysql"
 	"github.com/subosito/gotenv"
 )
@@ -18,6 +19,9 @@ type application struct {
 	users    interface {
 		Insert(string, string, string) error
 		Authenticate(string, string) (int, error)
+	}
+	words interface {
+		Next(int, int) []*models.Word
 	}
 }
 

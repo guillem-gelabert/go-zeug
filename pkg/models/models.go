@@ -11,6 +11,7 @@ var (
 	ErrDuplicateEmail     = errors.New("models: duplicate email")
 )
 
+// User represents a User as retrieved from the DB
 type User struct {
 	ID                 int
 	DisplayName        string
@@ -21,4 +22,12 @@ type User struct {
 	LastUpdate         time.Time
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+}
+
+// Word represents a Word as retrieved from the DB
+type Word struct {
+	ID          int
+	Article     string
+	Substantive string
+	Priority    int
 }
