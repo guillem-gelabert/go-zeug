@@ -57,7 +57,7 @@ func (m *CardModel) GetDueBy(uid int, t time.Time) ([]*models.Card, error) {
 }
 
 // Create adds a card to a user from a word
-func (m *CardModel) Create(uid int, w *models.Word) error {
+func (m *CardModel) Create(uid int, w *models.Word) (*models.Card, error) {
 	stmt := `INSERT INTO cards (wordId,	userId) VALUES (?,?)`
 
 	_, err := m.DB.Exec(stmt, w.ID, uid)
@@ -65,11 +65,29 @@ func (m *CardModel) Create(uid int, w *models.Word) error {
 		var mySQLError *mysql.MySQLError
 		if errors.As(err, &mySQLError) {
 			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "users_uc_email") {
-				return models.ErrDuplicateEmail
+				return nil, models.ErrDuplicateEmail
 			}
 		}
-		return err
+		return nil, err
 	}
 
-	return nil
+	var card *models.Card
+	row := m.DB.QueryRow(
+		`SELECT
+			id,
+			wordID,
+			userID,
+			stage,
+			nextDueDate,
+			easiness,
+			consecutiveCorrectAnswers
+		FROM cards
+		WHERE id = LAST_INSERT_ID()`)
+
+	err = row.Scan(card)
+	if err != nil {
+		return nil, err
+	}
+
+	return card, nil
 }

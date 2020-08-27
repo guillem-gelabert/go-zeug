@@ -16,17 +16,16 @@ import (
 
 type application struct {
 	cards interface {
+		Create(uid int, w *models.Word) (*models.Card, error)
 		GetDueBy(uid int, t time.Time) ([]*models.Card, error)
-		Answer(id int) error
-		Create(uid int, w *models.Word) error
 	}
 	infoLog  *log.Logger
 	errorLog *log.Logger
 	loggedIn *models.User
 	users    interface {
 		Authenticate(string, string) (int, error)
-		Insert(string, string, string) error
 		Get(int) (*models.User, error)
+		Insert(string, string, string) error
 	}
 	words interface {
 		Next(int, int) ([]*models.Word, error)
