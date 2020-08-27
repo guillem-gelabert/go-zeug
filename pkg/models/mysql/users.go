@@ -91,6 +91,9 @@ func (m *UserModel) Get(id int) (*models.User, error) {
 	)
 
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		}
 		return nil, err
 	}
 	return u, nil
