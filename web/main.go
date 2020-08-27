@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/guillem-gelabert/go-zeug/pkg/models"
@@ -14,6 +15,11 @@ import (
 )
 
 type application struct {
+	cards interface {
+		GetDueBy(uid int, t time.Time) ([]*models.Card, error)
+		Answer(id int) error
+		Create(uid int, w *models.Word) error
+	}
 	infoLog  *log.Logger
 	errorLog *log.Logger
 	loggedIn int
@@ -50,6 +56,7 @@ func main() {
 		infoLog:  infoLog,
 		users:    &mysql.UserModel{DB: db},
 		words:    &mysql.WordModel{DB: db},
+		cards:    &mysql.CardModel{DB: db},
 	}
 
 	srv := &http.Server{
