@@ -31,3 +31,14 @@ type Word struct {
 	Substantive string
 	Priority    int
 }
+
+// Card represents a Card as retrieved from the DB
+type Card struct {
+	ID                        int
+	WordID                    int
+	UserID                    int
+	Stage                     string
+	NextDueDate               time.Time
+	Easiness                  float32
+	ConsecutiveCorrectAnswers int
+}
