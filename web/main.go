@@ -22,7 +22,7 @@ type application struct {
 	}
 	infoLog  *log.Logger
 	errorLog *log.Logger
-	loggedIn int
+	loggedIn *models.User
 	users    interface {
 		Authenticate(string, string) (int, error)
 		Insert(string, string, string) error

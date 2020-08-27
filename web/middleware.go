@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -8,10 +9,11 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/guillem-gelabert/go-zeug/pkg/models"
 )
 
 type CustomClaims struct {
-	Id int `json:"uid"`
+	ID int `json:"uid"`
 	jwt.StandardClaims
 }
 
@@ -38,11 +40,23 @@ func (app *application) VerifyToken(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		app.loggedIn, err = strconv.Atoi(strconv.Itoa(claims.Id))
+		uid, err := strconv.Atoi(strconv.Itoa(claims.ID))
 		if err != nil {
 			app.clientError(w, "Malformed Token", http.StatusUnauthorized)
 			return
 		}
+
+		u, err := app.users.Get(uid)
+		if err != nil {
+			if errors.Is(err, models.ErrNoRecord) {
+				app.clientError(w, "Bad Credentials", http.StatusUnauthorized)
+				return
+			}
+			app.serverError(w, err)
+			return
+		}
+
+		app.loggedIn = u
 
 		next.ServeHTTP(w, r)
 	})
