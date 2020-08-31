@@ -24,7 +24,7 @@ func (m *CardModel) GetDueBy(uid int, t time.Time) ([]*models.Card, error) {
 	wordId,
 	userId,
 	stage,
-	nextDudeDate,
+	nextDueDate,
 	easiness,
 	consecutiveCorrectAnswers
 	FROM cards
@@ -40,13 +40,21 @@ func (m *CardModel) GetDueBy(uid int, t time.Time) ([]*models.Card, error) {
 
 	var cards []*models.Card
 	for rows.Next() {
-		var c *models.Card
-		err := rows.Scan(c)
+		c := models.Card{}
+		err := rows.Scan(
+			&c.ID,
+			&c.WordID,
+			&c.UserID,
+			&c.Stage,
+			&c.NextDueDate,
+			&c.Easiness,
+			&c.ConsecutiveCorrectAnswers,
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		cards = append(cards, c)
+		cards = append(cards, &c)
 	}
 
 	if err := rows.Err(); err != nil {

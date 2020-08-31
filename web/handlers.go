@@ -106,18 +106,22 @@ func (app *application) getSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var newCards []*models.Card
-	words, err := app.words.Next(app.loggedIn.LastSeenPriority, app.loggedIn.NewWordsPerSession)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	for _, word := range words {
-		card, err := app.cards.Create(uid, word)
+	timeSinceLastUpdate := time.Since(app.loggedIn.LastUpdate).Hours()
+	if timeSinceLastUpdate >= 24 {
+		words, err := app.words.Next(app.loggedIn.LastSeenPriority, app.loggedIn.NewWordsPerSession)
 		if err != nil {
 			app.serverError(w, err)
+			return
 		}
-		newCards = append(newCards, card)
+
+		for _, word := range words {
+			card, err := app.cards.Create(uid, word)
+			if err != nil {
+				app.serverError(w, err)
+				return
+			}
+			newCards = append(newCards, card)
+		}
 	}
 
 	var session []*models.Card
@@ -125,6 +129,11 @@ func (app *application) getSession(w http.ResponseWriter, r *http.Request) {
 
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(session), func(i, j int) { session[i], session[j] = session[j], session[i] })
+
+	app.loggedIn.LastSeenPriority = app.loggedIn.LastSeenPriority + app.loggedIn.NewWordsPerSession
+	app.loggedIn.LastUpdate = time.Now()
+
+	app.users.Update(app.loggedIn)
 
 	rs, err := json.Marshal(session)
 	if err != nil {
