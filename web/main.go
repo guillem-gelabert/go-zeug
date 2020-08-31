@@ -26,6 +26,7 @@ type application struct {
 		Authenticate(string, string) (int, error)
 		Get(int) (*models.User, error)
 		Insert(string, string, string) error
+		Update(*models.User) error
 	}
 	words interface {
 		Next(int, int) ([]*models.Word, error)

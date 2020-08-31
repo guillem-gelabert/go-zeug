@@ -98,3 +98,14 @@ func (m *UserModel) Get(id int) (*models.User, error) {
 	}
 	return u, nil
 }
+
+// Update modifies the user's lastSeenPriority and lastUpdate
+func (m *UserModel) Update(u *models.User) error {
+	stmt := "UPDATE users SET lastSeenPriority = ?, lastUpdate WHERE id = ?"
+	_, err := m.DB.Exec(stmt, u.LastSeenPriority, u.LastUpdate)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
