@@ -11,7 +11,6 @@ func (app *application) routes() http.Handler {
 
 	r.HandleFunc("/signup", app.signupUser)
 	r.HandleFunc("/login", app.loginUser)
-	r.HandleFunc("/words", app.VerifyToken(app.getNextWords))
-
+	r.HandleFunc("/cards", app.VerifyToken(app.getSession))
 	return r
 }
