@@ -18,6 +18,7 @@ type application struct {
 	cards interface {
 		Create(uid int, w *models.Word) (*models.Card, error)
 		GetDueBy(uid int, t time.Time) ([]*models.Card, error)
+		Update(cid int, correct bool) error
 	}
 	infoLog  *log.Logger
 	errorLog *log.Logger

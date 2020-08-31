@@ -92,10 +92,54 @@ func (m *CardModel) Create(uid int, w *models.Word) (*models.Card, error) {
 		FROM cards
 		WHERE id = LAST_INSERT_ID()`)
 
-	err = row.Scan(card)
+func (m *CardModel) GetById(cid int) (*models.Card, error) {
+	stmt := `SELECT
+			id,
+			wordID,
+			userID,
+			stage,
+			nextDueDate,
+			easiness,
+			consecutiveCorrectAnswers
+		FROM cards
+		WHERE id = ?`
+
+	card := models.Card{}
+	row := m.DB.QueryRow(stmt, cid)
+	err := row.Scan(
+		&card.ID,
+		&card.WordID,
+		&card.UserID,
+		&card.Stage,
+		&card.NextDueDate,
+		&card.Easiness,
+		&card.ConsecutiveCorrectAnswers,
+	)
+
 	if err != nil {
 		return nil, err
 	}
 
-	return card, nil
+	return &card, nil
+}
+
+func (m *CardModel) Update(cid int, correct bool) error {
+	c, err := m.GetById(cid)
+	if err != nil {
+		return err
+	}
+	c, _ = sm2.UpdateReviewedCard(c, correct)
+
+	stmt := `UPDATE cards
+		SET easiness = ?,
+		consecutiveCorrectAnswers = ?,
+		nextDueDate = ?
+		WHERE id = ?`
+
+	_, err = m.DB.Exec(stmt, c.Easiness, c.ConsecutiveCorrectAnswers, c.NextDueDate, c.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
