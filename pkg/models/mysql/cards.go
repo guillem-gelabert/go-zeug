@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/guillem-gelabert/go-zeug/pkg/models"
+	"github.com/guillem-gelabert/go-zeug/sm2"
 )
 
 // CardModel with embedded DB
@@ -79,7 +80,7 @@ func (m *CardModel) Create(uid int, w *models.Word) (*models.Card, error) {
 		return nil, err
 	}
 
-	var card *models.Card
+	card := models.Card{}
 	row := m.DB.QueryRow(
 		`SELECT
 			id,
@@ -91,6 +92,23 @@ func (m *CardModel) Create(uid int, w *models.Word) (*models.Card, error) {
 			consecutiveCorrectAnswers
 		FROM cards
 		WHERE id = LAST_INSERT_ID()`)
+
+	err = row.Scan(
+		&card.ID,
+		&card.WordID,
+		&card.UserID,
+		&card.Stage,
+		&card.NextDueDate,
+		&card.Easiness,
+		&card.ConsecutiveCorrectAnswers,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &card, nil
+}
 
 func (m *CardModel) GetById(cid int) (*models.Card, error) {
 	stmt := `SELECT
