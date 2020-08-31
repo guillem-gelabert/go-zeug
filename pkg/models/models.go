@@ -39,6 +39,6 @@ type Card struct {
 	UserID                    int
 	Stage                     string
 	NextDueDate               time.Time
-	Easiness                  float32
+	Easiness                  float64
 	ConsecutiveCorrectAnswers int
 }
