@@ -1,7 +1,6 @@
 package sm2
 
 import (
-	"reflect"
 	"testing"
 	"time"
 
@@ -167,11 +166,12 @@ func TestUpdateReviewedCard(t *testing.T) {
 			target: &models.Card{
 				Easiness:                  2,
 				ConsecutiveCorrectAnswers: 0,
+				NextDueDate:               time.Now().AddDate(0, 0, 0),
 			},
 			expected: &models.Card{
-				Easiness:                  2,
+				Easiness:                  2.22,
 				ConsecutiveCorrectAnswers: 1,
-				NextDueDate:               time.Now().AddDate(0, 0, 1),
+				NextDueDate:               time.Now().AddDate(0, 0, 6),
 			},
 		},
 	}
@@ -183,8 +183,17 @@ func TestUpdateReviewedCard(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if !reflect.DeepEqual(tC.expected, actual) {
-				t.Errorf("Expected %d; got %d", tC.expected, actual)
+			actualDate := actual.NextDueDate.Format("2006-01-02")
+			expectedDate := tC.expected.NextDueDate.Format("2006-01-02")
+
+			if actual.Easiness != tC.expected.Easiness {
+				t.Errorf("Expected %v; got %v", tC.expected.Easiness, actual.Easiness)
+			}
+			if actual.ConsecutiveCorrectAnswers != tC.expected.ConsecutiveCorrectAnswers {
+				t.Errorf("Expected %v; got %v", tC.expected.Easiness, actual.Easiness)
+			}
+			if actualDate != expectedDate {
+				t.Errorf("Expected %v; got %v", expectedDate, actualDate)
 			}
 		})
 	}
