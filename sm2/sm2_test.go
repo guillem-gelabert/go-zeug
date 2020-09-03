@@ -17,8 +17,8 @@ func TestGetEasiness(t *testing.T) {
 		{
 			desc:             "with correct answer and default easiness",
 			correct:          true,
-			previousEasiness: 2,
-			expected:         2.22,
+			previousEasiness: 2.5,
+			expected:         2.72,
 		},
 		{
 			desc:             "with incorrect answer and almost min easiness",
@@ -60,7 +60,7 @@ func TestGetNextDueDate(t *testing.T) {
 		{
 			desc:     "first correct answer in new card should reschedule to same day",
 			correct:  true,
-			easiness: 2,
+			easiness: 2.5,
 			cca:      0,
 			expected: time.Now(),
 		},
@@ -97,7 +97,7 @@ func TestGetNextDueDate(t *testing.T) {
 	}
 
 	t.Run("With negative CCA", func(t *testing.T) {
-		_, err := getNextDueDate(true, 2, -1)
+		_, err := getNextDueDate(true, 2.5, -1)
 		if err == nil {
 			t.Errorf("Expected to fail")
 		}
@@ -164,12 +164,12 @@ func TestUpdateReviewedCard(t *testing.T) {
 			desc:    "with correct answer",
 			correct: true,
 			target: &models.Card{
-				Easiness:                  2,
+				Easiness:                  2.5,
 				ConsecutiveCorrectAnswers: 0,
 				NextDueDate:               time.Now().AddDate(0, 0, 0),
 			},
 			expected: &models.Card{
-				Easiness:                  2.22,
+				Easiness:                  2.72,
 				ConsecutiveCorrectAnswers: 1,
 				NextDueDate:               time.Now().AddDate(0, 0, 6),
 			},
