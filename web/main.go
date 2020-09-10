@@ -11,11 +11,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/guillem-gelabert/go-zeug/pkg/models"
 	"github.com/guillem-gelabert/go-zeug/pkg/models/mysql"
+	dto "github.com/guillem-gelabert/go-zeug/web/dtos"
 	"github.com/subosito/gotenv"
 )
 
 type application struct {
 	cards interface {
+		NextSession(user *models.User) ([]*dto.CardDTO, error)
 		Create(uid int, w *models.Word) (*models.Card, error)
 		GetDueBy(uid int, t time.Time) ([]*models.Card, error)
 		Update(cid int, correct bool) error
