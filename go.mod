@@ -3,7 +3,8 @@ module github.com/guillem-gelabert/go-zeug
 go 1.14
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/Masterminds/squirrel v1.4.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/mux v1.8.0

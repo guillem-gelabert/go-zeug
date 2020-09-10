@@ -7,9 +7,11 @@ import (
 	"strings"
 	"time"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/go-sql-driver/mysql"
 	"github.com/guillem-gelabert/go-zeug/pkg/models"
 	"github.com/guillem-gelabert/go-zeug/sm2"
+	dto "github.com/guillem-gelabert/go-zeug/web/dtos"
 )
 
 // CardModel with embedded DB
@@ -160,4 +162,53 @@ func (m *CardModel) Update(cid int, correct bool) error {
 	}
 
 	return nil
+}
+
+// NextSession adds words to cards table, updates the user's last seen priority and returns userDtos
+func (m *CardModel) NextSession(user *models.User) ([]*dto.CardDTO, error) {
+
+	cardInsert := sq.Insert("cards").
+		Columns("wordId", "userId")
+
+	for i := 0; i < user.NewWordsPerSession; i++ {
+		cardInsert = cardInsert.Values(user.LastSeenPriority+1+i, user.ID)
+	}
+
+	_, err := cardInsert.RunWith(m.DB).Exec()
+	if err != nil {
+		return nil, err
+	}
+
+	userInsert := sq.Update("users").
+		Where("id = ?", user.ID).
+		Set("lastSeenPriority", user.LastSeenPriority+user.NewWordsPerSession)
+
+	if _, err = userInsert.RunWith(m.DB).Exec(); err != nil {
+		return nil, err
+	}
+
+	cardSelect := sq.Select("cards.id", "article", "substantive", "stage", "wordId").
+		From("cards").
+		Join("words ON (wordId = words.id)").
+		Limit(uint64(user.NewWordsPerSession)).
+		Offset(uint64(user.LastSeenPriority))
+
+	rows, err := cardSelect.RunWith(m.DB).Query()
+	if err != nil {
+		return nil, err
+	}
+
+	var cards []*dto.CardDTO
+	for rows.Next() {
+		card := &dto.CardDTO{
+			UserID: user.ID,
+		}
+		err = rows.Scan(&card.ID, &card.Article, &card.Substantive, &card.Stage, &card.WordID)
+		if err != nil {
+			return nil, err
+		}
+		cards = append(cards, card)
+	}
+
+	return cards, nil
 }
