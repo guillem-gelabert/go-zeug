@@ -12,6 +12,7 @@ import (
 	"github.com/guillem-gelabert/go-zeug/pkg/models"
 )
 
+// CustomClaims contains the payload of the JWT
 type CustomClaims struct {
 	ID int `json:"uid"`
 	jwt.StandardClaims
@@ -28,7 +29,7 @@ func (app *application) VerifyToken(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		authToken := bearer[1]
-		token, err := jwt.ParseWithClaims(authToken, &CustomClaims{}, KeyFunc)
+		token, err := jwt.ParseWithClaims(authToken, &CustomClaims{}, keyFunc)
 		if err != nil {
 			app.clientError(w, "Bad Credentials", http.StatusUnauthorized)
 			return
@@ -62,9 +63,17 @@ func (app *application) VerifyToken(next http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-func KeyFunc(token *jwt.Token) (interface{}, error) {
+func keyFunc(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("Method not available")
 	}
 	return []byte(os.Getenv("JWT_SECRET")), nil
+}
+
+// SetContentTypeJSON sets the content-type header to application/json as all endpoints respond with json
+func (app *application) SetContentTypeJSON(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
 }
