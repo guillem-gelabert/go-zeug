@@ -15,23 +15,6 @@ import (
 	dto "github.com/guillem-gelabert/go-zeug/web/dtos"
 )
 
-// command line tool
-// zeug -u guillem@gmail.com -p blablabla
-// > help
-// get	see all your scheduled cards
-// play	answer cards
-// > get
-// show scheduled cards
-// id	article	substantive	dateScheduled
-// > play
-//  Haus (write "<der|die|das)> Haus")
-// > der Haus
-// Wrong! DAS Haus. Press ENTER for next.
-// Land (write "<der|die|das)> Land")
-// > der Land
-// Right! DER Land. Press ENTER for next.
-// You're done for today
-
 func main() {
 	host := flag.String("h", "http://localhost:8000", "Host URL")
 	email := flag.String("u", "", "Email to login")
