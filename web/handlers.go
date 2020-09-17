@@ -96,6 +96,12 @@ func (app *application) getNextWords(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) getSession(w http.ResponseWriter, r *http.Request) {
+	if time.Now().Before(app.loggedIn.LastUpdate.AddDate(0, 0, 1)) {
+		emptySession, _ := json.Marshal([]*dto.CardDTO{})
+		w.Write(emptySession)
+		return
+	}
+
 	cs, err := app.cards.NextSession(app.loggedIn)
 	if err != nil {
 		app.serverError(w, err)
