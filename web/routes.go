@@ -27,8 +27,9 @@ func (app *application) routes() http.Handler {
 		noReferrer,
 	)
 
-	r.HandleFunc("/signup", app.signupUser)
-	r.HandleFunc("/login", app.loginUser)
-	r.HandleFunc("/cards", app.VerifyToken(app.getSession))
+	r.HandleFunc("/signup", app.signupUser).Methods("POST")
+	r.HandleFunc("/login", app.loginUser).Methods("POST")
+	r.HandleFunc("/cards", app.VerifyToken(app.getSession)).Methods("GET")
+	r.HandleFunc("/cards", app.VerifyToken(app.answerCard)).Methods("PUT")
 	return r
 }

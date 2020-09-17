@@ -9,3 +9,9 @@ type CardDTO struct {
 	UserID      int    `json:"user_id"`
 	Stage       string `json:"stage"`
 }
+
+// AnswerDTO represents an Answer to a Card as received from the client
+type AnswerDTO struct {
+	ID      int  `json:"id"`
+	Correct bool `json:"correct"`
+}

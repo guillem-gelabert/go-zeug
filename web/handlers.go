@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"runtime/debug"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/guillem-gelabert/go-zeug/pkg/models"
@@ -114,6 +115,27 @@ func (app *application) getSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(rs)
+}
+
+func (app *application) answerCard(w http.ResponseWriter, r *http.Request) {
+	answer, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	var answerDTO *dto.AnswerDTO
+	err = json.Unmarshal(answer, answerDTO)
+	if err != nil {
+		app.clientError(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	err = app.cards.Update(answerDTO.ID, answerDTO.Correct)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func generateToken(id int) (string, error) {
