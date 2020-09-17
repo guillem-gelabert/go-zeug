@@ -181,7 +181,8 @@ func (m *CardModel) NextSession(user *models.User) ([]*dto.CardDTO, error) {
 
 	userInsert := sq.Update("users").
 		Where("id = ?", user.ID).
-		Set("lastSeenPriority", user.LastSeenPriority+user.NewWordsPerSession)
+		Set("lastSeenPriority", user.LastSeenPriority+user.NewWordsPerSession).
+		Set("lastUpdate", time.Now())
 
 	if _, err = userInsert.RunWith(m.DB).Exec(); err != nil {
 		return nil, err
