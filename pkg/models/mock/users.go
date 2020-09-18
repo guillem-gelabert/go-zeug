@@ -6,7 +6,7 @@ import (
 	"github.com/guillem-gelabert/go-zeug/pkg/models"
 )
 
-var mockUser = &models.User{
+var MockUser = &models.User{
 	ID:                 1,
 	DisplayName:        "abigail_adams",
 	Email:              "abigail_adams@whitehouse.gov",
@@ -45,7 +45,7 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 func (m *UserModel) Get(id int) (*models.User, error) {
 	switch id {
 	case 1:
-		return mockUser, nil
+		return MockUser, nil
 	default:
 		return nil, models.ErrNoRecord
 	}

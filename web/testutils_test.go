@@ -6,12 +6,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/guillem-gelabert/go-zeug/pkg/models/mock"
 )
 
 func newTestApplication(t *testing.T) *application {
 	return &application{
-		errorLog: log.New(ioutil.Discard, "", 0),
 		infoLog:  log.New(ioutil.Discard, "", 0),
+		errorLog: log.New(ioutil.Discard, "", 0),
+		loggedIn: mock.MockUser,
+		users:    &mock.UserModel{},
 	}
 }
 
