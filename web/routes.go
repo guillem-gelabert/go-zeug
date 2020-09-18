@@ -29,7 +29,7 @@ func (app *application) routes() http.Handler {
 
 	r.HandleFunc("/signup", app.signupUser).Methods("POST")
 	r.HandleFunc("/login", app.loginUser).Methods("POST")
-	r.HandleFunc("/cards", app.VerifyToken(app.getSession)).Methods("GET")
-	r.HandleFunc("/cards", app.VerifyToken(app.answerCard)).Methods("PUT")
+	r.HandleFunc("/cards", app.VerifyToken(app.getSession)).Methods(http.MethodGet)
+	r.HandleFunc("/cards", app.VerifyToken(app.answerCard)).Methods(http.MethodPut)
 	return r
 }

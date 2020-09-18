@@ -47,7 +47,7 @@ func main() {
 }
 
 func getSession(host, jwt string) (*[]dto.CardDTO, error) {
-	req, err := http.NewRequest("GET", host+"/cards", nil)
+	req, err := http.NewRequest(http.MethodGet, host+"/cards", nil)
 	if err != nil {
 		return nil, err
 	}
