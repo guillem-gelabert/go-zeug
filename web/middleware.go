@@ -71,7 +71,7 @@ func keyFunc(token *jwt.Token) (interface{}, error) {
 }
 
 // SetContentTypeJSON sets the content-type header to application/json as all endpoints respond with json
-func (app *application) SetContentTypeJSON(next http.Handler) http.Handler {
+func SetContentTypeJSON(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 		next.ServeHTTP(w, r)

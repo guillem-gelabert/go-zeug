@@ -21,7 +21,7 @@ func (app *application) routes() http.Handler {
 	}
 
 	r.Use(
-		app.SetContentTypeJSON,
+		SetContentTypeJSON,
 		nosniff,
 		xssFilter,
 		noReferrer,
