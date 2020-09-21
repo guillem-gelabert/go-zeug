@@ -112,7 +112,7 @@ func (m *CardModel) Create(uid int, w *models.Word) (*models.Card, error) {
 	return &card, nil
 }
 
-func (m *CardModel) GetById(cid int) (*models.Card, error) {
+func (m *CardModel) GetByID(cid int) (*models.Card, error) {
 	stmt := `SELECT
 			id,
 			wordID,
@@ -144,7 +144,7 @@ func (m *CardModel) GetById(cid int) (*models.Card, error) {
 }
 
 func (m *CardModel) Update(cid int, correct bool) error {
-	c, err := m.GetById(cid)
+	c, err := m.GetByID(cid)
 	if err != nil {
 		return err
 	}
