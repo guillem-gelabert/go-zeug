@@ -16,6 +16,8 @@ func newTestApplication(t *testing.T) *application {
 		errorLog: log.New(ioutil.Discard, "", 0),
 		loggedIn: mock.MockUser,
 		users:    &mock.UserModel{},
+		cards:    &mock.CardModel{},
+		words:    &mock.WordModel{},
 	}
 }
 
