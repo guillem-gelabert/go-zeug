@@ -6,6 +6,7 @@ import (
 	"github.com/guillem-gelabert/go-zeug/pkg/models"
 )
 
+// MockUser is a mock User to be used for testing
 var MockUser = &models.User{
 	ID:                 1,
 	DisplayName:        "abigail_adams",
