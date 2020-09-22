@@ -24,7 +24,7 @@ func (game *Game) play() error {
 	for _, card := range *game.session {
 		fmt.Printf("%s (write \"<der|die|das)>\" %s\n", card.Substantive, card.Substantive)
 		text, _ := game.reader.ReadString('\n')
-		text = strings.Split(text, "\n")[0]
+		text = strings.TrimSpace(text)
 		if strings.ToLower(text) != strings.ToLower(card.Article) {
 			err := game.answer(card.ID, false)
 			if err != nil {
