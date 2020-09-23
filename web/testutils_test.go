@@ -5,8 +5,10 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/guillem-gelabert/go-zeug/pkg/models/mock"
 )
 
@@ -36,7 +38,18 @@ func newTestServer(t *testing.T, h http.Handler) *testServer {
 }
 
 func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, []byte) {
-	rs, err := ts.Client().Get(ts.URL + urlPath)
+	get, _ := http.NewRequest(http.MethodGet, ts.URL+urlPath, nil)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss": "zeug",
+		"uid": 1,
+	})
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	get.Header.Set("Authorization", "Bearer "+tokenString)
+	rs, err := ts.Client().Do(get)
 	if err != nil {
 		t.Fatal(err)
 	}
