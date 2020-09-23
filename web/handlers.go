@@ -86,11 +86,13 @@ func (app *application) getNextWords(w http.ResponseWriter, r *http.Request) {
 	ws, err := app.words.Next(u.LastSeenPriority, u.NewWordsPerSession)
 	if err != nil {
 		app.serverError(w, err)
+		return
 	}
 
 	rs, err := json.Marshal(ws)
 	if err != nil {
 		app.serverError(w, err)
+		return
 	}
 
 	w.Write(rs)
@@ -116,6 +118,7 @@ func (app *application) getSession(w http.ResponseWriter, r *http.Request) {
 	rs, err := json.Marshal(cs)
 	if err != nil {
 		app.serverError(w, err)
+		return
 	}
 
 	w.Write(rs)
@@ -137,6 +140,7 @@ func (app *application) answerCard(w http.ResponseWriter, r *http.Request) {
 	err = app.cards.Update(answerDTO.ID, answerDTO.Correct)
 	if err != nil {
 		app.serverError(w, err)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
