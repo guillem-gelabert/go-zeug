@@ -176,6 +176,9 @@ func (m *CardModel) NextSession(user *models.User) ([]*dto.CardDTO, error) {
 
 	_, err := cardInsert.RunWith(m.DB).Exec()
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		}
 		return nil, err
 	}
 
@@ -185,6 +188,9 @@ func (m *CardModel) NextSession(user *models.User) ([]*dto.CardDTO, error) {
 		Set("lastUpdate", time.Now())
 
 	if _, err = userInsert.RunWith(m.DB).Exec(); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		}
 		return nil, err
 	}
 
@@ -196,6 +202,9 @@ func (m *CardModel) NextSession(user *models.User) ([]*dto.CardDTO, error) {
 
 	rows, err := cardSelect.RunWith(m.DB).Query()
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		}
 		return nil, err
 	}
 
