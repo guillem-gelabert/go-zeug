@@ -54,23 +54,30 @@ func (m *CardModel) Update(cid int, correct bool) error {
 // NextSession is a mock of models/mysql/cards.NextSession
 func (m *CardModel) NextSession(user *models.User) ([]*dto.CardDTO, error) {
 	var r []*dto.CardDTO
-	for i, word := range MockWords {
-		stage := "UNSEEN"
-		if i%2 == 0 {
-			stage = "SEEN"
+	switch user.ID {
+	case 2:
+		return nil, models.ErrNoRecord
+	case 3:
+		return nil, models.ErrNoRecord
+	default:
+		for i, word := range MockWords {
+			stage := "UNSEEN"
+			if i%2 == 0 {
+				stage = "SEEN"
+			}
+
+			r = append(r, &dto.CardDTO{
+				ID:          i,
+				WordID:      i,
+				UserID:      user.ID,
+				Stage:       stage,
+				Article:     word[0],
+				Substantive: word[1],
+			})
 		}
 
-		r = append(r, &dto.CardDTO{
-			ID:          1,
-			WordID:      1,
-			UserID:      1,
-			Stage:       stage,
-			Article:     word[0],
-			Substantive: word[1],
-		})
+		return r, nil
 	}
-
-	return r, nil
 }
 
 // GetDueBy is a mock of models/mysql/cards.GetDueBy
